@@ -13,7 +13,6 @@ on:
     # Temporarily disable all tests for Issue #1188.
     branches-ignore:
     - '**'
-
 jobs:
   trick_32bit:
     runs-on: ubuntu-18.04
@@ -77,6 +76,11 @@ jobs:
         export MAKEFLAGS=-j`nproc`
         ./configure --without-hdf5 --enable-32bit
         make
+    - name: Run Gsetup tests
+      run: |
+        . share/trick/pymods/trick/.venv/bin/activate
+        cd trick_source/trick_gsetup
+        ./run_tests.py
     - name: Run civet tests
       run: |
         cd share/trick/pymods/trick/

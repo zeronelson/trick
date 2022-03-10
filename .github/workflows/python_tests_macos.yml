@@ -13,7 +13,6 @@ on:
     # Temporarily disable all tests for Issue #1188.
     branches-ignore:
     - '**'
-
 jobs:
   macOS:
     runs-on: macos-latest
@@ -50,6 +49,11 @@ jobs:
         export MAKEFLAGS=-j4
         ./configure
         make
+    - name: Run Gsetup tests
+      run: |
+        . share/trick/pymods/trick/.venv/bin/activate
+        cd trick_source/trick_gsetup
+        ./run_tests.py
     - name: Run Civet Tests
       run: |
         cd share/trick/pymods/trick/
