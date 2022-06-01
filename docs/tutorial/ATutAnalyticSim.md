@@ -540,39 +540,8 @@ that provide standard Trick Simulation functionality.
 * `##include "cannon/include/cannon_analytic.h"` The S_define must `##include`
 type definitions for all of the classes and structures that it uses. It also
 needs to include prototypes for all of the functions that it calls. You may also
-put the prototypes in the `S_define` block as shown below. But if you need to
-call any of the C functions from the input file then you must include the
+put the prototypes in the `S_define` block using ([user code blocks](/trick/documentation/building_a_simulation/Simulation-Definition-File#user-code-block)), but if you need to call any of the C functions from the input file then you must include the
 prototypes in a header file (the preferred method).
-
-```c++
-/*********************************************************************
-PURPOSE: (S_define Header)
-LIBRARY_DEPENDENCY: ((cannon/src/cannon_analytic.c)
-(cannon/src/cannon_init.c)
-(cannon/src/cannon_shutdown.c))
-*********************************************************************/
-#include "sim_objects/default_trick_sys.sm"
-##include "cannon/include/cannon.h"
-%{
-extern "C" {
-extern int cannon_analytic(CANNON*) ;
-}
-%}
-class CannonSimObject : public Trick::SimObject {
-    public:
-        CANNON cannon ;
-        CannonSimObject() {
-            ("initialization") cannon_init( &cannon ) ;
-            ("default_data") cannon_default_data( &cannon ) ;
-            (0.01, "scheduled") cannon_analytic( &cannon ) ;
-            ("shutdown") cannon_shutdown( &cannon) ;
-        }
-} ;
-
-CannonSimObject dyn ;
-```
-
-**Listing 7a - `Alternate Way of Adding Prototypes to S_define`**
 
 ### Data Lines
 
@@ -741,16 +710,14 @@ You should, ultimately see :
 
 ![Simulation Make Complete](images/SimMakeComplete.png)
 
-Now, take a look at the sim directory. Is there an `S_main*.exe` file ??? If so,
-cool deal. If not, scream!, then take a look at the next section "Troubleshooting A
-Bad Build". If all went well, you will notice several other files now resident in
-the `SIM_cannon_analytic` directory.
+Now, take a look at the sim directory. Is there an `S_main*.exe` file?? (* is a wildcard, instead of * you will see the name of your platform). If so, cool deal. If not, scream!, then take a look at the next section "Troubleshooting A Bad Build". If all went well, you will notice several other files now resident in the `SIM_cannon_analytic` directory.
 
 ```bash
 % ls
-S_default.dat        S_overrides.mk       build
-S_define             S_sie.resource       makefile
-S_main_Darwin_13.exe S_source.hh          trick
+Modified_data		S_overrides.mk		makefile
+RUN_test		S_sie.resource		trick.zip
+S_define		S_source.hh
+S_main_<your_platform_name_here>.exe	build
 ```
 
 #### Troubleshooting A Bad Build

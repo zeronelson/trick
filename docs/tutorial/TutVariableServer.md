@@ -64,10 +64,9 @@ is to configure the sessions.
 
 ## Approach
 
-Calling functions and setting simulation variables using the variable server is
-done as in the input file. That is, the client sends Python code to the variable
-server where it's executed, to call functions, set variables, or both. In the
-following sections we'll see examples of these. We'll also learn how to use the
+Calling functions and setting simulation variables with the variable server client is a similar process to doing the same with the input file. The client sends Python code to the variable
+server, where it's executed to call functions, set variables, or both. In the
+following sections, we'll see examples of these. We'll also learn how to use the
 variable server API to get data back to the client.
 
 <a id=a-simple-variable-server-client></a>
@@ -81,7 +80,7 @@ position data, and prints the periodic responses to the screen.
 **Listing - CannonDisplay_Rev1.py**
 
 ```python
-#!/usr/bin/python
+#!/usr/bin/python2
 import sys
 import socket
 
@@ -89,7 +88,7 @@ import socket
 if ( len(sys.argv) == 2) :
     trick_varserver_port = int(sys.argv[1])
 else :
-    print( "Usage: vsclient <port_number>")
+    print( "Usage: python<version_number> CannonDisplay_Rev1.py <port_number>")
     sys.exit()
 
 # 2.0 Connect to the variable server.
@@ -178,7 +177,7 @@ send messages using an ASCII encoding (rather than binary).
 The two [**var_add**](#api-var-add) commands add "dyn.cannon.pos[0]"
 and "dyn.cannon.pos[1]" to the session variable list. 
 
-:warning: Please notice that the quotes around the variable names must be
+⚠️ Please notice that the quotes around the variable names must be
 escaped with the '\' (backslash) character.
 
 ```
@@ -235,7 +234,7 @@ two ways. We can 1) call [**var_clear**](#api-var-clear) to clear the the list,
 or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do
 the following:
 
-```client_socket.send("trick.var_remove(\"dyn.cannon.init_angle\")\n )```
+```client_socket.send("trick.var_remove(\"dyn.cannon.init_angle\")\n")```
 
 So, when we run the modified client, the first three lines of the output should
 look something like the following.
@@ -275,7 +274,7 @@ The listing below implements a GUI client using **Python** and
 **Listing - CannonDisplay_Rev2.py**
 
 ```python
-#!/usr/bin/python
+#!/usr/bin/python2
 import sys 
 import socket
 import math

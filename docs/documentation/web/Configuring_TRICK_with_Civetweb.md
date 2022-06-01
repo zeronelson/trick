@@ -9,9 +9,8 @@ To configure Trick to support the civetweb web server, you'll need to
 ### Building the Civetweb Library
 ```bash
 cd $(CIVETWEB_HOME)
-make build
-make WITH_ALL=1
-mv $(CIVETWEB_HOME)/output/build/src/libcivetweb.a $(CIVETWEB_HOME)/lib
+mkdir lib
+make install-lib PREFIX=. CAN_INSTALL=1 WITH_WEBSOCKET=1
 ```
 ### Configuring Trick with Civetweb
 ```bash
