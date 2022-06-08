@@ -515,7 +515,7 @@ def get_configure_command(command: str, sections: dict, include_vars=False):
     return command.strip()
 
 class App(Component):
-    def __init__(self, my_json_or_filename, program: str = "/home/cherpin/git/trick/configure", resource_folder: str = f'{os.path.dirname(os.path.realpath(__file__))}/resources', back_up_filename=None) -> None:
+    def __init__(self, my_json_or_filename, program: str = "/Users/sfennell/trick/configure", resource_folder: str = f'{os.path.dirname(os.path.realpath(__file__))}/resources', back_up_filename=None) -> None:
         if type(my_json_or_filename) == str: #Handle a file name
             self.open(my_json_or_filename)
             self.filename = my_json_or_filename
@@ -685,7 +685,8 @@ class App(Component):
 
         self.pack(self.search_box, side="top", anchor="e", expand=True, fill="x")
 
-        self.only_checked = BooleanVar(False)
+        self.only_checked = BooleanVar()
+        self.only_checked.set(False)
         self.checked_toggle = Checkbutton(self.outer_search_box, variable=self.only_checked, text="Show only used options", command=self.call_search)
         self.checked_toggle.pack(side="right", anchor="e", expand=True, fill="x")
 
