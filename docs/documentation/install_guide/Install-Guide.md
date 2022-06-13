@@ -170,7 +170,7 @@ proceed to [Install Trick](#install) section of the install guide
 
 <a name="macos"></a>
 ### macOS Monterey, Big Sur, Catalina
-
+#### These instructions are for Intel-based macs. For the latest Apple silicon (M1) instructions see this issue: https://github.com/nasa/trick/issues/1283
 1. Install the latest Xcode. I recommend installing Xcode through the App Store.
 
 2. Download and install Xcode Command Line Tools for macOS. The following command in the terminal should do the job:
@@ -185,7 +185,7 @@ xcode-select --install
 4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
 
 ```bash
-brew install java xquartz swig maven udunits openmotif 
+brew install python java xquartz swig maven udunits openmotif 
 
 ```
 IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
@@ -199,7 +199,7 @@ Tip: I suggest renaming the untar'd directory to something simple like llvm13 an
 
 IMPORTANT: Your mac might complain during configuration or build that llvm is downloaded from the internet and can not be trusted. You may need to find a safe solution for this on your own. DO THIS AT YOUR OWN RISK: What worked for us was enabling Settings->Security & Privacy->Privacy->Developer Tools->Terminal. 
 
-IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well.
+IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well (I believe this is only an issue on M1 macs).
 You can find the path of udunits by executing the following command:
 
 ```
