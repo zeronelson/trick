@@ -182,13 +182,13 @@ class ControlPanel extends JPanel implements ChangeListener{
 }
 
 class SpeedCtrlPanel extends JPanel implements ChangeListener {
-    private RangeView rangeView;
+    private SkyView skyView;
     private JSlider speedSlider;
     private JLabel speedLabel;
 
     /* class constructor */
-    public SpeedCtrlPanel(RangeView view){
-        rangeView = view;
+    public SpeedCtrlPanel(SkyView view){
+        skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
@@ -196,7 +196,7 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
         speedSlider.setMajorTickSpacing(500);
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
-        speedSlider.addChangeListener(this);
+        //speedSlider.addChangeListener(this);
         add(speedSlider);
     }
 
