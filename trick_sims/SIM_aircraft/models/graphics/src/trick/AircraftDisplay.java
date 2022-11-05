@@ -283,8 +283,8 @@ class HeadingCtrlPanel extends JPanel implements ChangeListener {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
-        headingSlider = new JSlider(JSlider.HORIZONTAL, 0, Math.PI, 0);
-        headingSlider.setMajorTickSpacing(50);
+        headingSlider = new DoubleJSlider(JSlider.HORIZONTAL, 0, 10, 0);
+        headingSlider.setMajorTickSpacing(5);
         headingSlider.setPaintTrack(true);
         headingSlider.setPaintLabels(true);
         add(headingSlider);
