@@ -20,6 +20,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.FileReader;
+import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
 import javax.swing.ImageIcon;
@@ -193,6 +194,7 @@ class ControlPanel extends JPanel implements ActionListener {
     private SkyView skyView;
     private JButton zoomOutButton, zoomInButton;
     private SpeedCtrlPanel speedCtrlPanel;
+    private HeadingCtrlPanel headingCtrlPanel;
     
     public ControlPanel(SkyView skyView){
         skyView = skyView;
@@ -219,6 +221,15 @@ class ControlPanel extends JPanel implements ActionListener {
         zoomInButton.setActionCommand("zoomin");
         zoomInButton.setToolTipText("Zoom In");
         add(zoomInButton);
+
+        JPanel labeledHeadingCtrlPanel = new JPanel();
+        labeledHeadingCtrlPanel.setLayout(new BoxLayout(labeledHeadingCtrlPanel, BoxLayout.Y_AXIS));
+        JLabel headingCtrlLabel = new JLabel("Desired Heading");
+        headingCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labeledHeadingCtrlPanel.add(headingCtrlLabel);
+        headingCtrlPanel = new HeadingCtrlPanel(skyView);
+        labeledHeadingCtrlPanel.add(headingCtrlPanel);
+        add(labeledHeadingCtrlPanel);
     }
     public void actionPerformed (ActionEvent e){
         String s = e.getActionCommand();
@@ -239,7 +250,7 @@ class ControlPanel extends JPanel implements ActionListener {
 class SpeedCtrlPanel extends JPanel implements ChangeListener {
     private SkyView skyView;
     private JSlider speedSlider;
-    private JButton speedBut;
+    //private JButton speedBut;
    
     public SpeedCtrlPanel(SkyView view){
         skyView = view;
@@ -250,19 +261,41 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
         speedSlider.setMajorTickSpacing(50);
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
-        add(speedBut = new JButton("Def Value"));
+       //add(speedBut = new JButton("Def Value"));
         speedSlider.addChangeListener(this);
         add(speedSlider);
     }
 
     public void stateChanged(ChangeEvent e){
         if (e.getSource() == speedSlider){
-            speedBut.setText("" + speedSlider.getValue());
+           // speedBut.setText("" + speedSlider.getValue());
             skyView.setDesiredSpeed(speedSlider.getValue());
         }
     }
 }
 
+class HeadingCtrlPanel extends JPanel implements ChangeListener {
+    private SkyView skyView;
+    private JSlider headingSlider;
+
+    public HeadingCtrlPanel (SkyView view) {
+        skyView = view;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
+        headingSlider = new JSlider(JSlider.HORIZONTAL, 0, Math.PI, 0);
+        headingSlider.setMajorTickSpacing(50);
+        headingSlider.setPaintTrack(true);
+        headingSlider.setPaintLabels(true);
+        add(headingSlider);
+    }  
+
+    public void stateChanged(ChangeEvent e){
+        if (e.getSource() == headingSlider){
+        
+        }
+    }
+}
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
