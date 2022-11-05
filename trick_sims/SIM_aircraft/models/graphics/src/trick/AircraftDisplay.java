@@ -56,6 +56,8 @@ class SkyView extends JPanel {
 
     private double[] aircraftPos;
     private double[] aircraftVel;
+    private double actual_speed;
+    private double desired_speed;
     private double heading;
     private ScenePoly aircraft;
     private ScenePoly wpmarker;
@@ -66,7 +68,7 @@ class SkyView extends JPanel {
     private int worldOriginY;
     
     // Controls
-    private int speed;
+   
     public SkyView( double mapScale ) {
         scale = mapScale;
         setScale(mapScale);
@@ -101,7 +103,10 @@ class SkyView extends JPanel {
         aircraftVel[0] = n;
         aircraftVel[1] = w;
         heading = Math.atan2(w,n);
+        actual_speed = Math.sqrt(n*n + w*w);
     }
+
+
 
     public void setScale (double mapScale) {
         if (mapScale < 0.00005) {
@@ -136,10 +141,10 @@ class SkyView extends JPanel {
         g.fillPolygon(workPolyX, workPolyY, p.n);
     }
 
-    public void setSpeed(int n){
-        speed = n;
+    public void setDesiredSpeed(double n){
+        desired_speed = n;
     }
-    public int getSpeed(){ return speed;}
+    public double getDesiredSpeed(){ return desired_speed;}
     
     private void doDrawing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
@@ -172,7 +177,8 @@ class SkyView extends JPanel {
         g2d.setPaint(Color.BLACK);
         g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,40);
         g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,60);
-        g2d.drawString ( String.format("Aircraft Speed: [%d meters/sec]", speed), 20,80);
+        g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f meters/sec]", desired_speed), 20,80);
+        g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f meters/sec]", actual_speed), 20,100);
 
     }
 
@@ -195,7 +201,7 @@ class ControlPanel extends JPanel implements ActionListener {
 
         JPanel labeledSpeedCtrlPanel = new JPanel();
         labeledSpeedCtrlPanel.setLayout(new BoxLayout(labeledSpeedCtrlPanel, BoxLayout.Y_AXIS));
-        JLabel speedCtrlLabel = new JLabel("Speed");
+        JLabel speedCtrlLabel = new JLabel("Desired Speed");
         speedCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         labeledSpeedCtrlPanel.add(speedCtrlLabel);
         speedCtrlPanel = new SpeedCtrlPanel(skyView);
@@ -252,7 +258,7 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
     public void stateChanged(ChangeEvent e){
         if (e.getSource() == speedSlider){
             speedBut.setText("" + speedSlider.getValue());
-            skyView.setSpeed(speedSlider.getValue());
+            skyView.setDesiredSpeed(speedSlider.getValue());
         }
     }
 }
@@ -349,8 +355,8 @@ public class AircraftDisplay extends JFrame {
         double velWest = 0.0;
 
         // Outbound command variables
-        int desired_speed = 0;
-        System.out.println("" + desired_speed);
+        double desired_speed = 0;
+       // System.out.println("" + desired_speed);
     
 
         System.out.println("Connecting to: " + host + ":" + port);
@@ -385,8 +391,9 @@ public class AircraftDisplay extends JFrame {
                 skyview.setAircraftVel(velNorth, velWest);
 
                 // Send outbound command to set desired speed 
-                desired_speed = skyview.getSpeed(); // this works, so why doesn't the command work?
-                sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %d ;\n", desired_speed));
+                desired_speed = skyview.getDesiredSpeed();
+                System.out.println("" + desired_speed);
+                sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
               //  sd.out.writeBytes("dyn.aircraft.desired_speed = 200;\n");
 
 

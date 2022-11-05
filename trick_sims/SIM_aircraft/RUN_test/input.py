@@ -4,7 +4,7 @@ dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 6)
 dyn_integloop.set_integ_cycle(0.01)
 
 dyn.aircraft.set_desired_compass_heading(45.0);
-dyn.aircraft.autoPilot = True;
+dyn.aircraft.autoPilot = False;
 dyn.aircraft.desired_speed = 200 # meters per second
 
 #==========================================
