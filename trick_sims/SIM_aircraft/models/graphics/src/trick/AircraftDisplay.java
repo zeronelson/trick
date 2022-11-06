@@ -13,6 +13,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener; 
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.Component;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -23,12 +25,14 @@ import java.io.FileReader;
 import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
+import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JLabel;
 import javax.swing.JButton;
+import javax.swing.JToggleButton;
 import javax.naming.ldap.Control;
 import javax.swing.BorderFactory; 
 import javax.swing.border.EtchedBorder;
@@ -60,6 +64,8 @@ class SkyView extends JPanel {
     private double actual_speed;
     private double desired_speed;
     private double heading;
+    private double desired_heading;
+    private boolean autopilot;
     private ScenePoly aircraft;
     private ScenePoly wpmarker;
     private int[] workPolyX, workPolyY;
@@ -107,7 +113,15 @@ class SkyView extends JPanel {
         actual_speed = Math.sqrt(n*n + w*w);
     }
 
-
+    public void setAutoPilot(boolean ap){
+        autopilot = ap;
+    }
+    public boolean getAutoPilot(){
+        return autopilot;
+    }
+    public double getScale(){
+        return scale;
+    }
 
     public void setScale (double mapScale) {
         if (mapScale < 0.00005) {
@@ -145,8 +159,12 @@ class SkyView extends JPanel {
     public void setDesiredSpeed(double n){
         desired_speed = n;
     }
+
     public double getDesiredSpeed(){ return desired_speed;}
     
+    public void setDesiredHeading(double n){
+        desired_heading = n;
+    }
     private void doDrawing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
@@ -195,6 +213,7 @@ class ControlPanel extends JPanel implements ActionListener {
     private JButton zoomOutButton, zoomInButton;
     private SpeedCtrlPanel speedCtrlPanel;
     private HeadingCtrlPanel headingCtrlPanel;
+    private AutoPilotCtrlPanel autoPilotCtrlPanel;
     
     public ControlPanel(SkyView skyView){
         skyView = skyView;
@@ -230,27 +249,36 @@ class ControlPanel extends JPanel implements ActionListener {
         headingCtrlPanel = new HeadingCtrlPanel(skyView);
         labeledHeadingCtrlPanel.add(headingCtrlPanel);
         add(labeledHeadingCtrlPanel);
+
+        JPanel labeledAutoPilotCtrlPanel = new JPanel();
+        labeledAutoPilotCtrlPanel.setLayout(new BoxLayout(labeledAutoPilotCtrlPanel, BoxLayout.Y_AXIS));
+        JLabel autoPilotCtrlLabel = new JLabel("Desired Heading");
+        autoPilotCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labeledAutoPilotCtrlPanel.add(autoPilotCtrlLabel);
+        autoPilotCtrlPanel = new AutoPilotCtrlPanel(skyView);
+        labeledAutoPilotCtrlPanel.add(autoPilotCtrlPanel);
+        add(labeledAutoPilotCtrlPanel);
     }
     public void actionPerformed (ActionEvent e){
         String s = e.getActionCommand();
         switch (s) {
             case "zoomout":
-               // skyView.setScale( skyView.getScale() / 2 );
+                skyView.setScale( skyView.getScale() / 2 );
                 break;
             case "zoomin":
-                //skyView.setScale( skyView.getScale() * 2 );
+                skyView.setScale( skyView.getScale() * 2 );
                 break;
             default:
                 System.out.println("Unknown Action Command:" + s);
                 break;
         }
+
     }
 }
 
 class SpeedCtrlPanel extends JPanel implements ChangeListener {
     private SkyView skyView;
     private JSlider speedSlider;
-    //private JButton speedBut;
    
     public SpeedCtrlPanel(SkyView view){
         skyView = view;
@@ -261,7 +289,6 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
         speedSlider.setMajorTickSpacing(50);
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
-       //add(speedBut = new JButton("Def Value"));
         speedSlider.addChangeListener(this);
         add(speedSlider);
     }
@@ -283,19 +310,55 @@ class HeadingCtrlPanel extends JPanel implements ChangeListener {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
-        headingSlider = new DoubleJSlider(JSlider.HORIZONTAL, 0, 10, 0);
+        headingSlider = new JSlider(JSlider.HORIZONTAL, 0, 10, 0);
+
+        
         headingSlider.setMajorTickSpacing(5);
         headingSlider.setPaintTrack(true);
+
+        Hashtable<Integer, JLabel> labels = new Hashtable<>();
+        labels.put(0, new JLabel(" -\u03C0"));
+        labels.put(10, new JLabel("\u03C0"));
+        headingSlider.setLabelTable(labels);
         headingSlider.setPaintLabels(true);
+        headingSlider.addChangeListener(this);
         add(headingSlider);
     }  
 
     public void stateChanged(ChangeEvent e){
         if (e.getSource() == headingSlider){
-        
+            skyView.setDesiredHeading(headingSlider.getValue());
+            
+            
         }
     }
 }
+
+class AutoPilotCtrlPanel extends JPanel implements ItemListener {
+    private SkyView skyView;
+    private JToggleButton autoPilotButton;
+
+    public AutoPilotCtrlPanel(SkyView view){
+        skyView = view;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
+        autoPilotButton = new JToggleButton("Autopilot");
+        autoPilotButton.setToolTipText("Autopilot ");
+        autoPilotButton.addItemListener(this);
+        add(autoPilotButton);
+    }
+    public void itemStateChanged(ItemEvent e){
+        if (e.getStateChange() == ItemEvent.SELECTED){
+            skyView.setAutoPilot(true);
+            autoPilotButton.setText("Autopilot ON");
+        } else {
+            skyView.setAutoPilot(false);
+            autoPilotButton.setText("Autopilot OFF");
+        }
+    }       
+}
+
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
@@ -389,7 +452,7 @@ public class AircraftDisplay extends JFrame {
 
         // Outbound command variables
         double desired_speed = 0;
-       // System.out.println("" + desired_speed);
+        boolean autopilot = false;
     
 
         System.out.println("Connecting to: " + host + ":" + port);
@@ -425,9 +488,12 @@ public class AircraftDisplay extends JFrame {
 
                 // Send outbound command to set desired speed 
                 desired_speed = skyview.getDesiredSpeed();
-                System.out.println("" + desired_speed);
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
-              //  sd.out.writeBytes("dyn.aircraft.desired_speed = 200;\n");
+            
+                autopilot = skyview.getAutoPilot();
+                sd.out.writeBytes(String.format("dyn.aircraft.autopilot = %b ;\n", autopilot));
+
+
 
 
             } catch (IOException | NullPointerException e ) {
