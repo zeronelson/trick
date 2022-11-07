@@ -213,6 +213,7 @@ class ControlPanel extends JPanel implements ActionListener {
     private JButton zoomOutButton, zoomInButton;
     private SpeedCtrlPanel speedCtrlPanel;
     private HeadingCtrlPanel headingCtrlPanel;
+    private JToggleButton autoPilotButton;
     private AutoPilotCtrlPanel autoPilotCtrlPanel;
     
     public ControlPanel(SkyView skyView){
@@ -241,6 +242,21 @@ class ControlPanel extends JPanel implements ActionListener {
         zoomInButton.setToolTipText("Zoom In");
         add(zoomInButton);
 
+
+       /* autoPilotButton = new JToggleButton("Autopilot");
+        autoPilotButton.setToolTipText("Autopilot ");
+        //autoPilotButton.addItemListener();
+        add(autoPilotButton);*/ 
+
+        JPanel labeledAutoPilotCtrlPanel = new JPanel();
+        labeledAutoPilotCtrlPanel.setLayout(new BoxLayout(labeledAutoPilotCtrlPanel, BoxLayout.Y_AXIS));
+      //  JLabel autoPilotCtrlLabel = new JLabel("AutoPilot");
+      //  autoPilotCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //labeledAutoPilotCtrlPanel.add(autoPilotCtrlLabel);
+        autoPilotCtrlPanel = new AutoPilotCtrlPanel(skyView);
+        labeledAutoPilotCtrlPanel.add(autoPilotCtrlPanel);
+        add(labeledAutoPilotCtrlPanel); 
+        
         JPanel labeledHeadingCtrlPanel = new JPanel();
         labeledHeadingCtrlPanel.setLayout(new BoxLayout(labeledHeadingCtrlPanel, BoxLayout.Y_AXIS));
         JLabel headingCtrlLabel = new JLabel("Desired Heading");
@@ -250,14 +266,7 @@ class ControlPanel extends JPanel implements ActionListener {
         labeledHeadingCtrlPanel.add(headingCtrlPanel);
         add(labeledHeadingCtrlPanel);
 
-        JPanel labeledAutoPilotCtrlPanel = new JPanel();
-        labeledAutoPilotCtrlPanel.setLayout(new BoxLayout(labeledAutoPilotCtrlPanel, BoxLayout.Y_AXIS));
-        JLabel autoPilotCtrlLabel = new JLabel("Desired Heading");
-        autoPilotCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        labeledAutoPilotCtrlPanel.add(autoPilotCtrlLabel);
-        autoPilotCtrlPanel = new AutoPilotCtrlPanel(skyView);
-        labeledAutoPilotCtrlPanel.add(autoPilotCtrlPanel);
-        add(labeledAutoPilotCtrlPanel);
+       
     }
     public void actionPerformed (ActionEvent e){
         String s = e.getActionCommand();
@@ -272,8 +281,17 @@ class ControlPanel extends JPanel implements ActionListener {
                 System.out.println("Unknown Action Command:" + s);
                 break;
         }
-
     }
+  /*  public void itemStateChanged(ItemEvent e){
+        autoPilotButton.setText("Autopilot ON");
+        if (e.getStateChange() == ItemEvent.SELECTED){
+           // skyView.setAutoPilot(true);
+            autoPilotButton.setText("Autopilot ON");
+        } else {
+            //skyView.setAutoPilot(false);
+            autoPilotButton.setText("Autopilot OFF");
+        }
+    }        */
 }
 
 class SpeedCtrlPanel extends JPanel implements ChangeListener {
@@ -295,7 +313,6 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
 
     public void stateChanged(ChangeEvent e){
         if (e.getSource() == speedSlider){
-           // speedBut.setText("" + speedSlider.getValue());
             skyView.setDesiredSpeed(speedSlider.getValue());
         }
     }
@@ -341,10 +358,10 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
     public AutoPilotCtrlPanel(SkyView view){
         skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        //setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
         autoPilotButton = new JToggleButton("Autopilot");
-        autoPilotButton.setToolTipText("Autopilot ");
+       // autoPilotButton.setToolTipText("Autopilot ");
         autoPilotButton.addItemListener(this);
         add(autoPilotButton);
     }
