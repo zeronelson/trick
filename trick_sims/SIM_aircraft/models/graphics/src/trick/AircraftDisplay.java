@@ -515,18 +515,18 @@ public class AircraftDisplay extends JFrame {
                // System.out.println(autopilot);
                 autopilot = skyview.getAutoPilot();
                 
-                
-                sd.out.writeBytes(String.format("dyn.aircraft.autopilot = %b ;\n", autopilot));
+                String apString = "True";
+                sd.out.writeBytes(String.format("dyn.aircraft.autoPilot = %s ;\n", apString));
               
-                 String apString;
-                if (autopilot = true){
+                /*String apString;
+                if (autopilot == true){
                     apString = "True";
-                    sd.out.writeBytes(String.format("dyn.aircraft.autopilot = %s ;\n", apString));
+                    sd.out.writeBytes(String.format("dyn.aircraft.autoPilot = %s ;\n", apString));
                 } else {
                     apString = "False";
-                    sd.out.writeBytes(String.format("dyn.aircraft.autopilot = %s ;\n", apString));
+                    sd.out.writeBytes(String.format("dyn.aircraft.autoPilot = %s ;\n", apString));
 
-                } 
+                } */
                 //sd.out.writeBytes(String.format("dyn.aircraft.autoPilot = True ;\n"));
                 //skyview.setAutoPilot(autopilot);
 
@@ -535,6 +535,7 @@ public class AircraftDisplay extends JFrame {
 
 
 
+               sd.out.flush();
 
 
             } catch (IOException | NullPointerException e ) {

@@ -1,5 +1,8 @@
 exec(open("Modified_data/realtime.py").read())
 
+trick.var_debug(3)
+trick.set_var_server_info_msg_on()
+
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 6)
 dyn_integloop.set_integ_cycle(0.01)
 
