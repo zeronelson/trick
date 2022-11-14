@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.FileReader;
 import java.lang.Math;
 import java.net.Socket;
+import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.Hashtable;
 import javax.swing.ImageIcon;
@@ -65,7 +66,7 @@ class SkyView extends JPanel {
     private double desired_speed;
     private double heading;
     private double desired_heading;
-    private Boolean autopilot;
+    private Boolean autoPilot;
     private ScenePoly aircraft;
     private ScenePoly wpmarker;
     private int[] workPolyX, workPolyY;
@@ -114,11 +115,11 @@ class SkyView extends JPanel {
     }
 
     public void setAutoPilot(Boolean ap){
-        autopilot = ap;
+        autoPilot = ap;
     }
 
     public Boolean getAutoPilot(){
-        return autopilot;
+        return autoPilot;
     }
 
     public double getScale(){
@@ -205,7 +206,7 @@ class SkyView extends JPanel {
         g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f meters/sec]", actual_speed), 20,80);
         g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f meters/sec]", desired_speed), 20,100);
 
-        g2d.drawString ( String.format("Autopilot Mode: [%b]", autopilot), 20,120);
+        g2d.drawString ( String.format("Autopilot Mode: [%b]", autoPilot), width - 220,80);
       
         g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),width - 220 ,40);
         g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), width - 220,60);
@@ -225,13 +226,12 @@ class ControlPanel extends JPanel implements ActionListener {
     private JButton zoomOutButton, zoomInButton;
     private SpeedCtrlPanel speedCtrlPanel;
     private HeadingCtrlPanel headingCtrlPanel;
-    private JToggleButton autoPilotButton;
     private AutoPilotCtrlPanel autoPilotCtrlPanel;
+    private JPanel zoomCtrlPanel;
     
     public ControlPanel(SkyView skyView){
         skyView = skyView;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
 
         JPanel labeledSpeedCtrlPanel = new JPanel();
         labeledSpeedCtrlPanel.setLayout(new BoxLayout(labeledSpeedCtrlPanel, BoxLayout.Y_AXIS));
@@ -254,17 +254,14 @@ class ControlPanel extends JPanel implements ActionListener {
         zoomInButton.setToolTipText("Zoom In");
         add(zoomInButton);
 
-
-       /* autoPilotButton = new JToggleButton("Autopilot");
-        autoPilotButton.setToolTipText("Autopilot ");
-        //autoPilotButton.addItemListener();
-        add(autoPilotButton);*/ 
+        JPanel zoomCtrlPanel = new JPanel();
+        zoomCtrlPanel.setLayout(new BoxLayout(zoomCtrlPanel, BoxLayout.Y_AXIS));
+        zoomCtrlPanel.add(zoomInButton);
+        zoomCtrlPanel.add(zoomOutButton);
+        add(zoomCtrlPanel);
 
         JPanel labeledAutoPilotCtrlPanel = new JPanel();
         labeledAutoPilotCtrlPanel.setLayout(new BoxLayout(labeledAutoPilotCtrlPanel, BoxLayout.Y_AXIS));
-      //  JLabel autoPilotCtrlLabel = new JLabel("AutoPilot");
-      //  autoPilotCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        //labeledAutoPilotCtrlPanel.add(autoPilotCtrlLabel);
         autoPilotCtrlPanel = new AutoPilotCtrlPanel(skyView);
         labeledAutoPilotCtrlPanel.add(autoPilotCtrlPanel);
         add(labeledAutoPilotCtrlPanel); 
@@ -359,11 +356,13 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
         skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-        autoPilotButton = new JToggleButton("Autopilot");
-       // autoPilotButton.setToolTipText("Autopilot ");
+        autoPilotButton = new JToggleButton("Autopilot OFF", false);
+        skyView.setAutoPilot(false);
         autoPilotButton.addItemListener(this);
         add(autoPilotButton);
     }
+   
+
     public void itemStateChanged(ItemEvent e){
         if (e.getStateChange() == ItemEvent.SELECTED){
             skyView.setAutoPilot(true);
@@ -388,7 +387,6 @@ public class AircraftDisplay extends JFrame {
         setTitle("Aircraft Display");
 
         skyView = sky;
-        //add( skyView);
 
         panelGroup1 = new JPanel();
         panelGroup1.setLayout(new BoxLayout(panelGroup1, BoxLayout.X_AXIS));
@@ -468,7 +466,8 @@ public class AircraftDisplay extends JFrame {
 
         // Outbound command variables
         double desired_speed;
-        Boolean autopilot = false;
+        Boolean autopilot;
+       // Boolean autopilot = false;
         double desired_heading;
     
 
@@ -481,7 +480,6 @@ public class AircraftDisplay extends JFrame {
                           "trick.var_add(\"dyn.aircraft.pos[1]\") \n" +
                           "trick.var_add(\"dyn.aircraft.vel[0]\") \n" +
                           "trick.var_add(\"dyn.aircraft.vel[1]\") \n" +
-                          "trick.var_add(\"dyn.aircraft.autoPilot\") \n" +
                           "trick.var_ascii() \n" +
                           "trick.var_cycle(0.1) \n" +
                           "trick.var_unpause()\n" );
@@ -499,19 +497,17 @@ public class AircraftDisplay extends JFrame {
                 posWest = Double.parseDouble( field[2] );
                 velNorth = Double.parseDouble( field[3] );
                 velWest = Double.parseDouble( field[4] );
-               // autopilot = Boolean.parseBoolean( field[5] );
-
-
+              
+                
                 // Set the Aircraft position
                 skyview.setAircraftPos(posNorth, posWest);
                 skyview.setAircraftVel(velNorth, velWest);
 
-              //  skyview.setAutoPilot(autopilot);
 
-                // Send outbound command to set desired speed 
                 desired_speed = skyview.getDesiredSpeed();
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
             
+<<<<<<< HEAD
                // System.out.println(autopilot);
                 autopilot = skyview.getAutoPilot();
                 
@@ -538,6 +534,19 @@ public class AircraftDisplay extends JFrame {
                sd.out.flush();
 
 
+=======
+                desired_heading = skyview.getDesiredHeading();
+                sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
+                
+                autopilot = skyview.getAutoPilot();
+                if (autopilot == true){
+                    sd.out.writeBytes("dyn.aircraft.autoPilot = True ;\n");
+                } else {
+                  sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
+                } 
+            
+               
+>>>>>>> 1f1677d4648641067bc9b7c6fd1c17838424d669
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
