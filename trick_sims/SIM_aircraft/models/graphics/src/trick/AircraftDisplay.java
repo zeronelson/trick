@@ -226,8 +226,8 @@ class ControlPanel extends JPanel implements ActionListener {
     private JButton zoomOutButton, zoomInButton;
     private SpeedCtrlPanel speedCtrlPanel;
     private HeadingCtrlPanel headingCtrlPanel;
-    private JToggleButton autoPilotButton;
     private AutoPilotCtrlPanel autoPilotCtrlPanel;
+    private JPanel zoomCtrlPanel;
     
     public ControlPanel(SkyView skyView){
         skyView = skyView;
@@ -253,6 +253,12 @@ class ControlPanel extends JPanel implements ActionListener {
         zoomInButton.setActionCommand("zoomin");
         zoomInButton.setToolTipText("Zoom In");
         add(zoomInButton);
+
+        JPanel zoomCtrlPanel = new JPanel();
+        zoomCtrlPanel.setLayout(new BoxLayout(zoomCtrlPanel, BoxLayout.Y_AXIS));
+        zoomCtrlPanel.add(zoomInButton);
+        zoomCtrlPanel.add(zoomOutButton);
+        add(zoomCtrlPanel);
 
         JPanel labeledAutoPilotCtrlPanel = new JPanel();
         labeledAutoPilotCtrlPanel.setLayout(new BoxLayout(labeledAutoPilotCtrlPanel, BoxLayout.Y_AXIS));
