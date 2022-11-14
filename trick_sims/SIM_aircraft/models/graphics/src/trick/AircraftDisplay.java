@@ -345,13 +345,13 @@ class HeadingCtrlPanel extends JPanel implements ChangeListener {
 class AutoPilotCtrlPanel extends JPanel implements ItemListener {
     private SkyView skyView;
     private JToggleButton autoPilotButton;
-    private Boolean autoPilot;
 
     public AutoPilotCtrlPanel(SkyView view){
         skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-        autoPilotButton = new JToggleButton("Autopilot ", false );
+        autoPilotButton = new JToggleButton("Autopilot OFF", false);
+        skyView.setAutoPilot(false);
         autoPilotButton.addItemListener(this);
         add(autoPilotButton);
     }
@@ -457,7 +457,6 @@ public class AircraftDisplay extends JFrame {
         double posWest = 0.0;
         double velNorth = 0.0;
         double velWest = 0.0;
-        Boolean autoPilot;
 
         // Outbound command variables
         double desired_speed;
@@ -475,7 +474,6 @@ public class AircraftDisplay extends JFrame {
                           "trick.var_add(\"dyn.aircraft.pos[1]\") \n" +
                           "trick.var_add(\"dyn.aircraft.vel[0]\") \n" +
                           "trick.var_add(\"dyn.aircraft.vel[1]\") \n" +
-                          "trick.var_add(\"dyn.aircraft.autoPilot\") \n" +
                           "trick.var_ascii() \n" +
                           "trick.var_cycle(0.1) \n" +
                           "trick.var_unpause()\n" );
@@ -493,40 +491,26 @@ public class AircraftDisplay extends JFrame {
                 posWest = Double.parseDouble( field[2] );
                 velNorth = Double.parseDouble( field[3] );
                 velWest = Double.parseDouble( field[4] );
-                autoPilot = Boolean.parseBoolean( field[5] );
-                System.out.println("Value: " + autoPilot); 
+              
                 
                 // Set the Aircraft position
                 skyview.setAircraftPos(posNorth, posWest);
                 skyview.setAircraftVel(velNorth, velWest);
 
-                /* Not able to retrieve the value of autopilot */
-                //Boolean isWorking = skyview.getAutoPilot();
-               // System.out.println("Second Value: " + isWorking);
-
-                autopilot =  skyview.getAutoPilot(); 
-                //autopilot = true;
-                System.out.println("AUTOPILOT: " + autopilot);
-                String apString;
-                /* if (autopilot){
-                    apString = "True";
-                    sd.out.writeBytes(String.format("dyn.aircraft.autoPilot = %s ;\n", apString));
-                } else if (autopilot == null){
-                    System.out.println("AUTOPILOT IS NULL");
-                }
-                 else {
-                    apString = "False";
-                    sd.out.writeBytes(String.format("dyn.aircraft.autoPilot = %s ;\n", apString));
-                } */ 
 
                 desired_speed = skyview.getDesiredSpeed();
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
             
                 desired_heading = skyview.getDesiredHeading();
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
- 
- 
- 
+                
+                autopilot = skyview.getAutoPilot();
+                if (autopilot == true){
+                    sd.out.writeBytes("dyn.aircraft.autoPilot = True ;\n");
+                } else {
+                  sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
+                } 
+            
                
             } catch (IOException | NullPointerException e ) {
                 go = false;
