@@ -112,14 +112,14 @@ class SkyView extends JPanel {
     }
 
     public void setScale (double mapScale) {
-        if (mapScale < 0.00005) {
-            scale = 0.00005;
-        } else if (mapScale < 0.01){
-            scale = 0.01;
-        }
-         else {
+        if (mapScale < 0.004) {
+            scale = 0.004;
+        } else if (mapScale > 0.02){
+            scale = 0.02;
+        } else {
             scale = mapScale;
         }
+        repaint();
     }
 
     public double getScale(){
@@ -211,7 +211,7 @@ class SkyView extends JPanel {
         g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,40);
         g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,60);
 
-        g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,80);
+        g2d.drawString ( String.format("SCALE: %.3f pixels/meter",scale), 20,80);
 
         g2d.drawString ( String.format("Autopilot Mode: [%B]", autopilot), 20,100);
 
@@ -238,7 +238,7 @@ class SkyView extends JPanel {
 }
 
 class ControlPanel extends JPanel implements ActionListener {
-    private SkyView skyView;
+    private SkyView skyview;
     private JButton zoomOutButton, zoomInButton;
     private SpeedCtrlPanel speedCtrlPanel;
     private HeadingCtrlPanel headingCtrlPanel;
@@ -247,7 +247,7 @@ class ControlPanel extends JPanel implements ActionListener {
 
 
     public ControlPanel(SkyView skyView){
-        skyView = skyView;
+        skyview = skyView;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 
@@ -298,10 +298,10 @@ class ControlPanel extends JPanel implements ActionListener {
         String s = e.getActionCommand();
         switch (s) {
             case "zoomout":
-                skyView.setScale( skyView.getScale() / 2 );
+                skyview.setScale( skyview.getScale() / 1.5 );
                 break;
             case "zoomin":
-                skyView.setScale( skyView.getScale() * 2 );
+                skyview.setScale( skyview.getScale() * 1.5 );
                 break;
             default:
                 System.out.println("Unknown Action Command:" + s);
