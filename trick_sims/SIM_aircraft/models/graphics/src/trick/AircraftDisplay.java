@@ -324,8 +324,23 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
         speedSlider.addChangeListener(this);
+       // speedSlider.setEnabled(false);
         add(speedSlider);
     }
+
+    public void setThumb(double speed){
+        int n = (int) speed;
+        System.out.println("Slider: " + speedSlider.getValue());
+        speedSlider.setValue(n); 
+        System.out.println("Slider: " + speedSlider.getValue()); // Changes the value, but not the thumb
+       
+    }
+
+    public void disableJSlider(){
+            speedSlider.setEnabled(false);
+        
+    }
+   
 
     public void stateChanged(ChangeEvent e){
         if (e.getSource() == speedSlider){
@@ -392,6 +407,7 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
+    private SpeedCtrlPanel speedCtrlPanel;
     private BufferedReader in;
     private DataOutputStream out;
     private JPanel panelGroup0, panelGroup1;
@@ -399,6 +415,8 @@ public class AircraftDisplay extends JFrame {
 
     public AircraftDisplay(SkyView sky) {
         skyView = sky;
+        speedCtrlPanel = new SpeedCtrlPanel(sky);
+        
         add( skyView);
         setTitle("Aircraft Display");
         setSize(800, 800);
@@ -467,16 +485,18 @@ public class AircraftDisplay extends JFrame {
         double mapScale = 0.01; // 100 meters per pixel
         SkyView skyview = new SkyView( mapScale);
         AircraftDisplay sd = new AircraftDisplay(skyview);
+        SpeedCtrlPanel speedCtrlPanel = new SpeedCtrlPanel(skyview);
         sd.setVisible(true);
         double posNorth = 0.0;
         double posWest = 0.0;
         double velNorth = 0.0;
         double velWest = 0.0;
 
-        double desired_speed = 0.0;
-
         Boolean autopilot = false;
+        Boolean flag = false;
+        double desired_speed = 0.0;
         double desired_heading = 0.0;
+        
 
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
@@ -513,18 +533,36 @@ public class AircraftDisplay extends JFrame {
                 skyview.setAircraftPos(posNorth, posWest);
                 skyview.setAircraftVel(velNorth, velWest);
 
-                desired_speed = skyview.getDesiredSpeed();
+                if (!flag){
+                    skyview.setDesiredSpeed(desired_speed);
+                    skyview.setDesiredHeading(desired_heading);
+                    speedCtrlPanel.setThumb(desired_speed);
+                  //  speedCtrlPanel.disableJSlider();
+                    flag = true;
+                }
+                
+              /*  desired_speed = skyview.getDesiredSpeed();
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
 
                 desired_heading = skyview.getDesiredHeading();
-                sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
+                sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));*/ 
 
                 autopilot = skyview.getAutoPilot();
             
                 if (autopilot == true){
                     sd.out.writeBytes("dyn.aircraft.autoPilot = True ;\n");
+                    skyview.setDesiredSpeed(desired_speed);
+                //   speedCtrlPanel.disableJSlider();
+            
                 } else {
-                  sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
+                    sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
+
+                    desired_speed = skyview.getDesiredSpeed();
+                    sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
+    
+                    desired_heading = skyview.getDesiredHeading();
+                    sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
+
                 } 
 
             } catch (IOException | NullPointerException e ) {
