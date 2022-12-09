@@ -28,6 +28,8 @@ import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
 import java.util.Hashtable;
+import java.util.stream.IntStream.IntMapMultiConsumer;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -321,6 +323,7 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
 
         speedSlider = new JSlider(JSlider.HORIZONTAL, 0, 250, 0);
         speedSlider.setMajorTickSpacing(50);
+        speedSlider.setPaintTicks(true);
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
         speedSlider.addChangeListener(this);
@@ -335,6 +338,8 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
     public void disableJSlider(){
         if (skyView.getAutoPilot() == true){
                 speedSlider.setEnabled(false);
+        } else {
+            speedSlider.setEnabled(true);
         }
     }
    
@@ -360,9 +365,13 @@ class HeadingCtrlPanel extends JPanel implements ChangeListener {
         
         headingSlider.setMajorTickSpacing(90);
         headingSlider.setPaintTrack(true);
+        headingSlider.setPaintTicks(true);
 
         Hashtable<Integer, JLabel> labels = new Hashtable<>();
         labels.put(-180, new JLabel(" -\u03C0"));
+        labels.put(-90, new JLabel("-\u03C0/2"));
+        labels.put(0, new JLabel("0"));
+        labels.put(90, new JLabel("\u03C0/2"));
         labels.put(180, new JLabel("\u03C0"));
         headingSlider.setLabelTable(labels);
         headingSlider.setPaintLabels(true);
@@ -372,8 +381,16 @@ class HeadingCtrlPanel extends JPanel implements ChangeListener {
 
     public void disableJSlider(){
         if (skyView.getAutoPilot() == true){
-                headingSlider.setEnabled(false);
+            headingSlider.setEnabled(false);
+        } else {
+            headingSlider.setEnabled(true);
         }
+    }
+
+    public void setThumb(double heading){
+        int n = (int) Math.toDegrees(heading);
+        System.out.println("Degrees: " + n);
+        headingSlider.setValue(n);        
     }
 
     public void stateChanged(ChangeEvent e){
@@ -527,6 +544,7 @@ public class AircraftDisplay extends JFrame {
                 velWest = Double.parseDouble( field[4] );
                 desired_speed = Double.parseDouble( field[5]);
                 desired_heading = Double.parseDouble(field[6]);
+                desired_heading = -3.14;
 
                 // Set the Aircraft position
                 skyview.setAircraftPos(posNorth, posWest);
@@ -538,28 +556,30 @@ public class AircraftDisplay extends JFrame {
                     skyview.setDesiredSpeed(desired_speed);
                     skyview.setDesiredHeading(desired_heading);
                     sd.controlPanel.speedCtrlPanel.setThumb(desired_speed);
+                    sd.controlPanel.headingCtrlPanel.setThumb(desired_heading);
                     flag = true;
                 }
 
+                sd.controlPanel.speedCtrlPanel.disableJSlider();
+                sd.controlPanel.headingCtrlPanel.disableJSlider();
+
                 autopilot = skyview.getAutoPilot();
+
+                desired_speed = skyview.getDesiredSpeed();
+                sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
+
+                desired_heading = skyview.getDesiredHeading();
+                sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
+                
             
                 if (autopilot == true){
                     sd.out.writeBytes("dyn.aircraft.autoPilot = True ;\n");
-                    skyview.setDesiredSpeed(desired_speed);
-                    sd.controlPanel.speedCtrlPanel.disableJSlider();
-                    sd.controlPanel.headingCtrlPanel.disableJSlider();
-            
                 } else {
                     sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
-
-                    desired_speed = skyview.getDesiredSpeed();
-                    sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
-    
-                    desired_heading = skyview.getDesiredHeading();
-                    sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
-
                 } 
-
+                sd.controlPanel.speedCtrlPanel.disableJSlider();
+                sd.controlPanel.headingCtrlPanel.disableJSlider();
+                
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
