@@ -240,8 +240,8 @@ class SkyView extends JPanel {
 class ControlPanel extends JPanel implements ActionListener {
     private SkyView skyview;
     private JButton zoomOutButton, zoomInButton;
-    private SpeedCtrlPanel speedCtrlPanel;
-    private HeadingCtrlPanel headingCtrlPanel;
+    public SpeedCtrlPanel speedCtrlPanel;
+    public HeadingCtrlPanel headingCtrlPanel;
     private AutoPilotCtrlPanel autoPilotCtrlPanel;   
   
 
@@ -324,21 +324,18 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
         speedSlider.addChangeListener(this);
-       // speedSlider.setEnabled(false);
         add(speedSlider);
     }
 
     public void setThumb(double speed){
         int n = (int) speed;
-        System.out.println("Slider: " + speedSlider.getValue());
-        speedSlider.setValue(n); 
-        System.out.println("Slider: " + speedSlider.getValue()); // Changes the value, but not the thumb
-       
+        speedSlider.setValue(n);        
     }
 
     public void disableJSlider(){
-            speedSlider.setEnabled(false);
-        
+        if (skyView.getAutoPilot() == true){
+                speedSlider.setEnabled(false);
+        }
     }
    
 
@@ -372,6 +369,12 @@ class HeadingCtrlPanel extends JPanel implements ChangeListener {
         headingSlider.addChangeListener(this);
         add(headingSlider);
     }  
+
+    public void disableJSlider(){
+        if (skyView.getAutoPilot() == true){
+                headingSlider.setEnabled(false);
+        }
+    }
 
     public void stateChanged(ChangeEvent e){
         if (e.getSource() == headingSlider){
@@ -407,16 +410,13 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
-    private SpeedCtrlPanel speedCtrlPanel;
     private BufferedReader in;
     private DataOutputStream out;
     private JPanel panelGroup0, panelGroup1;
-    private ControlPanel controlPanel;
+    public ControlPanel controlPanel;
 
     public AircraftDisplay(SkyView sky) {
-        skyView = sky;
-        speedCtrlPanel = new SpeedCtrlPanel(sky);
-        
+        skyView = sky;        
         add( skyView);
         setTitle("Aircraft Display");
         setSize(800, 800);
@@ -485,7 +485,6 @@ public class AircraftDisplay extends JFrame {
         double mapScale = 0.01; // 100 meters per pixel
         SkyView skyview = new SkyView( mapScale);
         AircraftDisplay sd = new AircraftDisplay(skyview);
-        SpeedCtrlPanel speedCtrlPanel = new SpeedCtrlPanel(skyview);
         sd.setVisible(true);
         double posNorth = 0.0;
         double posWest = 0.0;
@@ -533,26 +532,22 @@ public class AircraftDisplay extends JFrame {
                 skyview.setAircraftPos(posNorth, posWest);
                 skyview.setAircraftVel(velNorth, velWest);
 
+            
+
                 if (!flag){
                     skyview.setDesiredSpeed(desired_speed);
                     skyview.setDesiredHeading(desired_heading);
-                    speedCtrlPanel.setThumb(desired_speed);
-                  //  speedCtrlPanel.disableJSlider();
+                    sd.controlPanel.speedCtrlPanel.setThumb(desired_speed);
                     flag = true;
                 }
-                
-              /*  desired_speed = skyview.getDesiredSpeed();
-                sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
-
-                desired_heading = skyview.getDesiredHeading();
-                sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));*/ 
 
                 autopilot = skyview.getAutoPilot();
             
                 if (autopilot == true){
                     sd.out.writeBytes("dyn.aircraft.autoPilot = True ;\n");
                     skyview.setDesiredSpeed(desired_speed);
-                //   speedCtrlPanel.disableJSlider();
+                    sd.controlPanel.speedCtrlPanel.disableJSlider();
+                    sd.controlPanel.headingCtrlPanel.disableJSlider();
             
                 } else {
                     sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
